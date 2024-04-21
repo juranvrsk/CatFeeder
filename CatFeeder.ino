@@ -15,7 +15,8 @@ const char* password = MY_KEY;
 const char* ntpServer = "ru.pool.ntp.org";
 
 WiFiUDP ntpUDP;
-NTPClient timeClient(ntpUDP, ntpServer, 10800, 60000);
+//NTPClient timeClient(ntpUDP, ntpServer, 10800, 60000);
+NTPClient* timeClient;
 
 ESP8266WebServer server(80);
 
@@ -26,11 +27,12 @@ String currentTime = "05:50";
 String gpioStatus = "0";
 bool coilTime = false;
 
-String ledToggleMessage = "";
+String coilToggleMessage = "";
 
 void setup() 
 {
   Serial.begin(115200);
+  Serial.println("Start ESP8266");
 
   // Connect to Wi-Fi
   WiFi.begin(ssid, password);
@@ -41,6 +43,8 @@ void setup()
   }
   Serial.println("Connected to WiFi");
 
+  timeClient = new NTPClient(ntpUDP, ntpServer, 10800, 60000);
+
   // Initialize GPIO pins
   pinMode(COIL, OUTPUT);
   pinMode(LED, OUTPUT);
@@ -48,7 +52,7 @@ void setup()
   // Attach routes to the server
   server.on("/", HTTP_GET, handleRoot);
   server.on("/updateTime", HTTP_POST, handleUpdateTime);
-  server.on("/toggleLED", HTTP_GET, handleToggleCoil);
+  server.on("/toggleCoil", HTTP_GET, handleToggleCoil);
   server.on("/getTime", HTTP_GET, handleGetTime);
   server.on("/getGPIOStatus", HTTP_GET, handleGetGPIOStatus);
 
@@ -56,15 +60,15 @@ void setup()
   server.begin();
 
   // Initialize NTP
-  timeClient.begin();
+  timeClient->begin();
 }
 
 void loop() 
 {
   server.handleClient();
-  timeClient.update();  
+  timeClient->update();  
   
-  if (feedTime.IsTime(timeClient.getHours(),timeClient.getMinutes())) 
+  if (feedTime.IsTime(timeClient->getHours(),timeClient->getMinutes())) 
   {
     //Serial.println("Coil Time!");
     if(coilTime == false)
@@ -79,7 +83,7 @@ void loop()
   }
     
 
-  if(timeClient.getMinutes()%2 == 0)//Blink every two minutes
+  if(timeClient->getMinutes()%2 == 0)//Blink every two minutes
   {
     digitalWrite(LED, HIGH);
   }
@@ -132,15 +136,15 @@ void handleRoot()
   html += "<h3>С управлением по Wi-Fi и таймером</h3>";
 
   // Display time
-  html += "<p id='currentTime'>Текущее время: " + timeClient.getFormattedTime() + "</p>";
+  html += "<p id='currentTime'>Текущее время: " + timeClient->getFormattedTime() + "</p>";
 
   // Display GPIO pin status
   html += "<p id='gpioStatus'>Открытие замка: " + gpioStatus + "</p>";
 
   // Display LED toggle message
-  if (ledToggleMessage.length() > 0) {
-    html += "<p id='ledToggleMessage'>" + ledToggleMessage + "</p>";
-    ledToggleMessage = ""; // Reset message
+  if (coilToggleMessage.length() > 0) {
+    html += "<p id='ledToggleMessage'>" + coilToggleMessage + "</p>";
+    coilToggleMessage = ""; // Reset message
   }
 
   // Button to toggle GPIO D1
@@ -172,7 +176,7 @@ void handleRoot()
   html += "function toggleLEDAndReturn() {";
   html += "  var form = document.getElementById('toggleLEDForm');";
   html += "  var xhr = new XMLHttpRequest();";
-  html += "  xhr.open('GET', '/toggleLED', true);";
+  html += "  xhr.open('GET', '/toggleCoil', true);";
   html += "  xhr.onload = function() {";
   html += "    if (xhr.status === 200) {";
   html += "      ledToggleMessage = xhr.responseText;";
@@ -198,12 +202,12 @@ void handleUpdateTime() //Seting of the opening time from the Web page
 void handleToggleCoil() //Handle open of the cap
 {
   CoilAction(COIL);
-  server.send(200, "text/plain", "LED toggled");
+  server.send(200, "text/plain", "Coil toggled");
 }
 
 void handleGetTime() 
 {
-  server.send(200, "text/plain", timeClient.getFormattedTime());
+  server.send(200, "text/plain", timeClient->getFormattedTime());
 }
 
 void handleGetGPIOStatus() 
