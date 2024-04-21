@@ -211,36 +211,6 @@ void handleGetGPIOStatus()
   server.send(200, "text/plain", gpioStatus);
 }
 
-void CoilStateMachine(int pin, bool state)
-{
-  if(state == ASCEND)
-  {
-    if((currentPWMState >= 0)&&(currentPWMState < 1024))
-    {
-      analogWrite(COIL,currentPWMState);
-      currentPWMState+=4;
-      delay(2);
-    }
-  }
-  else
-  {
-    if((currentPWMState >= 0)&&(currentPWMState < 1024))
-    {
-      analogWrite(COIL,currentPWMState);
-      currentPWMState+=4;
-      delay(2);
-    }
-  }
-  if(currentPWMState >= 1024)
-  {
-    currentPWMState = 1024;
-  }
-  if(currentPWMState < 0)
-  {
-    currentPWMState = 0;
-  }
-}
-
 void CoilAction(int pin)
 {
   int pwmState = 0;  
