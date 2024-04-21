@@ -48,7 +48,7 @@ void setup()
   // Attach routes to the server
   server.on("/", HTTP_GET, handleRoot);
   server.on("/updateTime", HTTP_POST, handleUpdateTime);
-  server.on("/toggleLED", HTTP_GET, handleToggleLED);
+  server.on("/toggleLED", HTTP_GET, handleToggleCoil);
   server.on("/getTime", HTTP_GET, handleGetTime);
   server.on("/getGPIOStatus", HTTP_GET, handleGetGPIOStatus);
 
@@ -188,15 +188,14 @@ void handleRoot()
   server.send(200, "text/html; charset=utf-8", html);
 }
 
-void handleUpdateTime() 
+void handleUpdateTime() //Seting of the opening time from the Web page
 {
   currentTime = server.arg("setTime");
-  currentHour = parseHours(currentTime);
-  currentMinute = parseMinutes(currentTime);
+  feedTime.SetTime(parseHours(currentTime),parseMinutes(currentTime));  
   server.send(200, "text/plain", "Time updated successfully");
 }
 
-void handleToggleLED() 
+void handleToggleCoil() //Handle open of the cap
 {
   CoilAction(COIL);
   server.send(200, "text/plain", "LED toggled");
