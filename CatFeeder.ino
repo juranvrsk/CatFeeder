@@ -211,17 +211,17 @@ void handleGetGPIOStatus()
   server.send(200, "text/plain", gpioStatus);
 }
 
-void CoilAction(int pin)
+void CoilAction(int pin)//Soft powering up and down
 {
   int pwmState = 0;  
-  while(pwmState < 1024) //Soft starting coil during 1.024 sec
+  while(pwmState < 1024) //Soft powering up coil during 1.024 sec
   {
     analogWrite(COIL,pwmState);
     pwmState+=2;
     delay(2);
   }
   delay(500); //Waiting for a half second
-  while(pwmState > 0) //Soft stopping coil during 2.048 sec
+  while(pwmState > 0) //Soft powering down coil during 2.048 sec
   {
     analogWrite(COIL,pwmState);
     pwmState-=2;
@@ -232,13 +232,11 @@ void CoilAction(int pin)
 int parseHours(String timeString)
 {
   String result = timeString.substring(0,timeString.indexOf(":"));
-  //Serial.println(result);
   return result.toInt();
 }
 
 int parseMinutes(String timeString)
 {
   String result = timeString.substring(timeString.indexOf(":")+1,5);
-  //Serial.println(result);
   return result.toInt();
 }
