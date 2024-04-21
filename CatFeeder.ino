@@ -3,9 +3,12 @@
 #include <ESP8266WebServer.h>
 #include <WiFiUdp.h>
 #include "WiFiSecrets.h"
+#include "CFTime.h"
 
 #define ASCEND false
 #define DESCEND true
+#define COIL D1
+#define LED D2
 
 const char* ssid = MY_SSID; 
 const char* password = MY_KEY;
@@ -16,13 +19,9 @@ NTPClient timeClient(ntpUDP, ntpServer, 10800, 60000);
 
 ESP8266WebServer server(80);
 
-const int COIL = D1;
-const int LED = D2;
-
 //Default time
-int currentHour = 5;
-int currentMinute = 50;
-int currentPWMState = 0;
+CFTime feedTime = CFTime(5,50);
+
 String currentTime = "05:50";
 String gpioStatus = "0";
 bool coilTime = false;
@@ -64,13 +63,14 @@ void loop()
 {
   server.handleClient();
   timeClient.update();  
-  if (currentHour == timeClient.getHours() && currentMinute == timeClient.getMinutes()) 
+  
+  if (feedTime.IsTime(timeClient.getHours(),timeClient.getMinutes())) 
   {
     //Serial.println("Coil Time!");
     if(coilTime == false)
     {
       CoilAction(COIL); 
-      coilTime = true;
+      coilTime = true;//Block re-opening of the cap
     }
   }
   else
@@ -79,7 +79,7 @@ void loop()
   }
     
 
-  if(timeClient.getMinutes()%2 == 0)
+  if(timeClient.getMinutes()%2 == 0)//Blink every two minutes
   {
     digitalWrite(LED, HIGH);
   }
