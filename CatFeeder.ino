@@ -2,7 +2,7 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 #include <WiFiUdp.h>
-#include "WifFiSecrets.h"
+#include "WiFiSecrets.h"
 
 #define ASCEND false
 #define DESCEND true
@@ -19,6 +19,7 @@ ESP8266WebServer server(80);
 const int COIL = D1;
 const int LED = D2;
 
+//Default time
 int currentHour = 5;
 int currentMinute = 50;
 int currentPWMState = 0;
@@ -28,12 +29,14 @@ bool coilTime = false;
 
 String ledToggleMessage = "";
 
-void setup() {
+void setup() 
+{
   Serial.begin(115200);
 
   // Connect to Wi-Fi
   WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) {
+  while (WiFi.status() != WL_CONNECTED) 
+  {
     delay(1000);
     Serial.println("Connecting to WiFi...");
   }
@@ -57,7 +60,8 @@ void setup() {
   timeClient.begin();
 }
 
-void loop() {
+void loop() 
+{
   server.handleClient();
   timeClient.update();  
   if (currentHour == timeClient.getHours() && currentMinute == timeClient.getMinutes()) 
@@ -85,7 +89,8 @@ void loop() {
   }
 }
 
-void handleRoot() {
+void handleRoot() 
+{
   String html = "<html><head>";
   html += "<script>";
   html += "function updateValues() {";
@@ -183,27 +188,27 @@ void handleRoot() {
   server.send(200, "text/html; charset=utf-8", html);
 }
 
-void handleUpdateTime() {
+void handleUpdateTime() 
+{
   currentTime = server.arg("setTime");
   currentHour = parseHours(currentTime);
   currentMinute = parseMinutes(currentTime);
-  /*int split = inputString.indexOf(":");
-  currentHour =  inputString.substring(0,split);
-  currentMinute = inputString.substring(split+1,5);*/
   server.send(200, "text/plain", "Time updated successfully");
 }
 
-void handleToggleLED() {
+void handleToggleLED() 
+{
   CoilAction(COIL);
   server.send(200, "text/plain", "LED toggled");
 }
 
-void handleGetTime() {
+void handleGetTime() 
+{
   server.send(200, "text/plain", timeClient.getFormattedTime());
 }
 
-void handleGetGPIOStatus() {
-  //gpioStatus = String(digitalRead(COIL));
+void handleGetGPIOStatus() 
+{
   server.send(200, "text/plain", gpioStatus);
 }
 
@@ -227,10 +232,6 @@ void CoilStateMachine(int pin, bool state)
       delay(2);
     }
   }
-  /*else
-  {
-    
-  }*/
   if(currentPWMState >= 1024)
   {
     currentPWMState = 1024;
@@ -240,11 +241,9 @@ void CoilStateMachine(int pin, bool state)
     currentPWMState = 0;
   }
 }
+
 void CoilAction(int pin)
 {
-  /*digitalWrite(pin, HIGH);
-  delay(1000);
-  digitalWrite(pin, LOW);*/
   int pwmState = 0;  
   while(pwmState < 1024) //Soft starting coil during 1.024 sec
   {
