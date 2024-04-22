@@ -25,6 +25,7 @@ CFTime RTC;
 String currentTime = "05:50";
 String gpioStatus = "0";
 bool coilTime = false;
+unsigned long lastMillis = 0;
 
 String coilToggleMessage = "";
 
@@ -187,7 +188,7 @@ void handleGetGPIOStatus()
 
 void CoilAction(int pin)//Soft powering up and down
 {
-  int pwmState = 0;  
+  int pwmState = 0;    
   while(pwmState < 1024) //Soft powering up coil during 1.024 sec
   {
     analogWrite(COIL,pwmState);
@@ -202,6 +203,28 @@ void CoilAction(int pin)//Soft powering up and down
     delay(2);
   }  
 }
+
+//Soft powering up and down. It haves the three stages: voltage increasing, pause and voltage decreasing
+//The speed is the time step, higher is slower. Period of work depends on it
+/*void CoilAction(int pin, int speed)
+{
+    int pwmState = 0;
+    int cycleCounter = 0;//Three stages 0-1023 is power up,1024-2047 is pause,2048-3071 is power down
+    unsigned long nowMillis = millis();
+    if(nowMillis-lastMillis == speed)
+    {
+      if(cycleCounter < 1024)
+      {        
+        pwmState+=2;
+      }
+      else if(cycleCounter >=2048)
+      {
+        pwmState-=2;
+      }
+
+      cycleCounter++;
+    }
+}*/
 
 int parseHours(String timeString)
 {
