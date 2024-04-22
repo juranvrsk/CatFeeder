@@ -121,7 +121,7 @@ void handleRoot()
   html += "<meta name='viewport' content='width=device-width, initial-scale=1.0, user-scalable=no'>";
   html += "<title>КотоКормушка</title>\n";
   html +="<style>html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}\n";
-  html +="body{margin-top: 50px;} h1 {color: #444444;margin: 50px auto 30px;} h3 {color: #444444;margin-bottom: 50px;}\n";
+  html +="body{margin-top: 50px;} h1 {color: #444444;margin: 50px auto 30px;font-size: 48px;} h3 {color: #444444;margin-bottom: 50px;font-size: 32px;}\n";
   /*html +=".button {display: block;width: 100px;background-color: #1abc9c;border: none;color: white;padding: 13px 30px;text-decoration: none;font-size: 25px;margin: 0px auto 35px;cursor: pointer;border-radius: 4px;}\n";
   html +=".button-on {background-color: #1abc9c;}\n";
   html +=".button-on:active {background-color: #16a085;}\n";
@@ -129,17 +129,17 @@ void handleRoot()
   html +=".button-off:active {background-color: #2c3e50;}\n";
   html +="input {width: 100px;padding: 13px 30px;font-size: 25px;margin: 0px auto 35px;}\n";*/
   //html += ".button{width: 100px;}
-  html +="p {font-size: 16px;color: #888;margin-bottom: 10px;}\n";   
+  html +="p {font-size: 32px;color: #888;margin-bottom: 10px;} input[type=button]{padding: 16px 128px;font-size: 32;} input[type=time]{padding: 16px 128px;font-size:32;} label{font-size:32;}\n";   
   html +="</style>\n";
   html += "</head><body onload='updateValues()'>";
-  html += "<h1>Кормушка для Марсика</h1>";
-  html += "<h3>С управлением по Wi-Fi и таймером</h3>";
+  html += "<h1>The cat feeder</h1>";
+  html += "<h3>With the Wi-Fi and timer</h3>";
 
   // Display time
-  html += "<p id='currentTime'>Текущее время: " + timeClient->getFormattedTime() + "</p>";
+  html += "<p id='currentTime'>Current: " + timeClient->getFormattedTime() + "</p>";
 
   // Display GPIO pin status
-  html += "<p id='gpioStatus'>Открытие замка: " + gpioStatus + "</p>";
+  html += "<p id='gpioStatus'>Cap open: " + gpioStatus + "</p>";
 
   // Display LED toggle message
   if (coilToggleMessage.length() > 0) {
@@ -149,13 +149,15 @@ void handleRoot()
 
   // Button to toggle GPIO D1
   html += "<form id='toggleLEDForm' action='/toggleLED' method='get'>";
-  html += "<input type='button' value='Открыть' onclick='toggleLEDAndReturn()' />";
+  html += "<input type='button' value='Open' onclick='toggleLEDAndReturn()' />";
   html += "</form>";
 
   // Form to set time
   html += "<form id='timeForm' action='/updateTime' method='post'>";
-  html += "<label>Время открытия:</label>";
+  html += "<label>Open Time:</label>";
+  html += "<br>";
   html += "<input type='time' name='setTime' id='setTime' value='" + currentTime + "' />";
+  html += "<br>";
   html += "<input type='button' value='ОК' onclick='updateTimeAndReturn()' />";
   html += "</form>";
 
