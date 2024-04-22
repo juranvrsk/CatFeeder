@@ -22,7 +22,6 @@ ESP8266WebServer server(80);
 
 //Default time
 CFTime feedTime = CFTime(5,50);
-
 String currentTime = "05:50";
 String gpioStatus = "0";
 bool coilTime = false;
@@ -122,13 +121,6 @@ void handleRoot()
   html += "<title>КотоКормушка</title>\n";
   html +="<style>html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}\n";
   html +="body{margin-top: 50px;} h1 {color: #444444;margin: 50px auto 30px;font-size: 48px;} h3 {color: #444444;margin-bottom: 50px;font-size: 32px;}\n";
-  /*html +=".button {display: block;width: 100px;background-color: #1abc9c;border: none;color: white;padding: 13px 30px;text-decoration: none;font-size: 25px;margin: 0px auto 35px;cursor: pointer;border-radius: 4px;}\n";
-  html +=".button-on {background-color: #1abc9c;}\n";
-  html +=".button-on:active {background-color: #16a085;}\n";
-  html +=".button-off {background-color: #34495e;}\n";
-  html +=".button-off:active {background-color: #2c3e50;}\n";
-  html +="input {width: 100px;padding: 13px 30px;font-size: 25px;margin: 0px auto 35px;}\n";*/
-  //html += ".button{width: 100px;}
   html +="p {font-size: 32px;color: #888;margin-bottom: 10px;} input[type=button]{padding: 16px 128px;font-size: 32;} input[type=time]{padding: 16px 128px;font-size:32;} label{font-size:32;}\n";   
   html +="</style>\n";
   html += "</head><body onload='updateValues()'>";
