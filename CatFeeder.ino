@@ -18,7 +18,10 @@ NTPClient* timeClient;
 ESP8266WebServer server(80);
 
 //Default time
-CFTime feedTime = CFTime(5,50);
+CFTime::TimeStamp feedTime = {5,50,0};
+CFTime::TimeStamp updatePeriod = {1,0,0}; //Every hour
+CFTime::TimeStamp ledPeriod = {0,2,0}; //Every two minutes
+CFTime RTC;
 String currentTime = "05:50";
 String gpioStatus = "0";
 bool coilTime = false;
@@ -28,8 +31,7 @@ String coilToggleMessage = "";
 void setup() 
 {
   Serial.begin(115200);
-  Serial.println("Start ESP8266");
-
+  Serial.println("Start ESP8266");  
   // Connect to Wi-Fi
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) 
@@ -57,14 +59,20 @@ void setup()
 
   // Initialize NTP
   timeClient->begin();
+  delay(3000); //Small pause and update, just in case
+  timeClient->update(); 
+  RTC = CFTime(timeClient->getHours(),timeClient->getMinutes(),timeClient->getSeconds());
 }
 
 void loop() 
 {
+  RTC.Tick();
   server.handleClient();
-  timeClient->update();  
-  
-  if (feedTime.IsTime(timeClient->getHours(),timeClient->getMinutes())) 
+  if(RTC.Period(updatePeriod))
+  {
+    timeClient->update();  
+  }  
+  if (RTC.IsTime(feedTime))
   {
     //Serial.println("Coil Time!");
     if(coilTime == false)
@@ -76,10 +84,8 @@ void loop()
   else
   {
     coilTime = false;
-  }
-    
-
-  if(timeClient->getMinutes()%2 == 0)//Blink every two minutes
+  }   
+  if(RTC.Period(ledPeriod))//Blink 
   {
     digitalWrite(LED, HIGH);
   }
@@ -99,7 +105,7 @@ void handleRoot()
   html += "     .then(text => document.getElementById('currentTime').innerHTML = text);";
   html += "  fetch('/getGPIOStatus')";
   html += "     .then(response => response.text())";
-  html += "     .then(text => document.getElementById('gpioStatus').innerHTML = 'Открытие замка:'+ text);";
+  html += "     .then(text => document.getElementById('gpioStatus').innerHTML = 'Cap open:'+ text);";
   html += "}";
   html += "function updateTimeAndReturn() {";
   html += "    const formData = new FormData(document.getElementById('timeForm'));";
@@ -114,7 +120,7 @@ void handleRoot()
   html += "</script>";
   html += "<meta charset='UTF-8'>";
   html += "<meta name='viewport' content='width=device-width, initial-scale=1.0, user-scalable=no'>";
-  html += "<title>КотоКормушка</title>\n";
+  html += "<title>The cat Feeder</title>\n";
   html +="<style>";
   html +="  body {font-family: Helvetica; margin: 50px auto; text-align: center;}";
   html +="  h1 {color: #444444; margin: 50px auto 30px; font-size: 48px; }";
@@ -128,7 +134,7 @@ void handleRoot()
   html += "<h1>The cat feeder</h1>";
   html += "<h3>With the Wi-Fi and timer</h3>";
   // Display time
-  html += "<p id='currentTime'>Current: " + timeClient->getFormattedTime() + "</p>";
+  html += "<p id='currentTime'>Current: " + RTC.ToString() + "</p>";
   // Display GPIO pin status
   html += "<p id='gpioStatus'>Cap open: " + gpioStatus + "</p>";
   // Display coil toggle message
@@ -158,7 +164,8 @@ void handleRoot()
 void handleUpdateTime() //Seting of the opening time from the Web page
 {
   currentTime = server.arg("setTime");
-  feedTime.SetTime(parseHours(currentTime),parseMinutes(currentTime));  
+  feedTime.Hour = parseHours(currentTime);
+  feedTime.Minute = parseMinutes(currentTime);  
   server.send(200, "text/plain", "Time updated successfully");
 }
 
@@ -170,7 +177,7 @@ void handleToggleCoil() //Handle open of the cap
 
 void handleGetTime() 
 {
-  server.send(200, "text/plain", timeClient->getFormattedTime());
+  server.send(200, "text/plain", RTC.ToString());
 }
 
 void handleGetGPIOStatus() 
