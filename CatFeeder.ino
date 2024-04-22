@@ -141,15 +141,15 @@ void handleRoot()
   // Display GPIO pin status
   html += "<p id='gpioStatus'>Cap open: " + gpioStatus + "</p>";
 
-  // Display LED toggle message
+  // Display coil toggle message
   if (coilToggleMessage.length() > 0) {
-    html += "<p id='ledToggleMessage'>" + coilToggleMessage + "</p>";
+    html += "<p id='coilToggleMessage'>" + coilToggleMessage + "</p>";
     coilToggleMessage = ""; // Reset message
   }
 
-  // Button to toggle GPIO D1
-  html += "<form id='toggleLEDForm' action='/toggleLED' method='get'>";
-  html += "<input type='button' value='Open' onclick='toggleLEDAndReturn()' />";
+  // Button to toggle GPIO D1 (coil)
+  html += "<form id='toggleCoilForm' action='/toggleCoil' method='get'>";
+  html += "<input type='button' value='Open' onclick='toggleCoilAndReturn()' />";
   html += "</form>";
 
   // Form to set time
@@ -175,13 +175,13 @@ void handleRoot()
   html += "  };";
   html += "  xhr.send(formData);";
   html += "}";
-  html += "function toggleLEDAndReturn() {";
-  html += "  var form = document.getElementById('toggleLEDForm');";
+  html += "function toggleCoilAndReturn() {";
+  html += "  var form = document.getElementById('toggleCoilForm');";
   html += "  var xhr = new XMLHttpRequest();";
   html += "  xhr.open('GET', '/toggleCoil', true);";
   html += "  xhr.onload = function() {";
   html += "    if (xhr.status === 200) {";
-  html += "      ledToggleMessage = xhr.responseText;";
+  html += "      coilToggleMessage = xhr.responseText;";
   html += "      updateValues();";
   html += "    }";
   html += "  };";
