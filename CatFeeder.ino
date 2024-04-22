@@ -91,44 +91,46 @@ void loop()
 
 void handleRoot() 
 {
-  String html = "<html><head>";
+  String html = "<html>\n<head>";
   html += "<script>";
   html += "function updateValues() {";
-  html += "  var xhrTime = new XMLHttpRequest();";
-  html += "  xhrTime.onreadystatechange = function() {";
-  html += "    if (xhrTime.readyState == 4 && xhrTime.status == 200) {";
-  html += "      document.getElementById('currentTime').innerHTML = xhrTime.responseText;";
-  html += "    }";
-  html += "  };";
-  html += "  xhrTime.open('GET', '/getTime', true);";
-  html += "  xhrTime.send();";
-  html += "  var xhrGPIO = new XMLHttpRequest();";
-  html += "  xhrGPIO.onreadystatechange = function() {";
-  html += "    if (xhrGPIO.readyState == 4 && xhrGPIO.status == 200) {";
-  html += "      document.getElementById('gpioStatus').innerHTML = 'Cap open: ' + xhrGPIO.responseText;";
-  html += "    }";
-  html += "  };";
-  html += "  xhrGPIO.open('GET', '/getGPIOStatus', true);";
-  html += "  xhrGPIO.send();";
+  html += "  fetch('/getTime')";
+  html += "     .then(response => response.text())";
+  html += "     .then(text => document.getElementById('currentTime').innerHTML = text);";
+  html += "  fetch('/getGPIOStatus')";
+  html += "     .then(response => response.text())";
+  html += "     .then(text => document.getElementById('gpioStatus').innerHTML = 'Открытие замка:'+ text);";
+  html += "}";
+  html += "function updateTimeAndReturn() {";
+  html += "    const formData = new FormData(document.getElementById('timeForm'));";
+  html += "    fetch('/updateTime', { method: 'POST', body: formData })";
+  html += "       .then(response => response.ok && updateValues());";
+  html += "}";
+  html += "function toggleCoilAndReturn() {";
+  html += "    fetch('/toggleCoil')";
+  html += "       .then(response => response.ok && updateValues());";
   html += "}";
   html += "setInterval(updateValues, 1000);"; // Update every 1 second
   html += "</script>";
+  html += "<meta charset='UTF-8'>";
   html += "<meta name='viewport' content='width=device-width, initial-scale=1.0, user-scalable=no'>";
   html += "<title>КотоКормушка</title>\n";
-  html +="<style>html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}\n";
-  html +="body{margin-top: 50px;} h1 {color: #444444;margin: 50px auto 30px;font-size: 48px;} h3 {color: #444444;margin-bottom: 50px;font-size: 32px;}\n";
-  html +="p {font-size: 32px;color: #888;margin-bottom: 10px;} input[type=button]{padding: 16px 128px;font-size: 32;} input[type=time]{padding: 16px 128px;font-size:32;} label{font-size:32;}\n";   
+  html +="<style>";
+  html +="  body {font-family: Helvetica; margin: 50px auto; text-align: center;}";
+  html +="  h1 {color: #444444; margin: 50px auto 30px; font-size: 48px; }";
+  html +="  h3 {color: #444444; margin-bottom: 50px; font-size: 32px; }";
+  html +="  p {font-size: 32px; color: #888; margin-bottom: 10px; }";
+  html +="  form {margin-bottom: 20px;}";
+  html +="  input[type='time'], button[type='button'] {width: 100%; padding: 16px; font-size: 32px; margin-bottom: 10px; }";
+  html +="  label {font-size: 32px; margin-bottom: 10px; }";  
   html +="</style>\n";
-  html += "</head><body onload='updateValues()'>";
+  html += "</head>\n<body>";
   html += "<h1>The cat feeder</h1>";
   html += "<h3>With the Wi-Fi and timer</h3>";
-
   // Display time
   html += "<p id='currentTime'>Current: " + timeClient->getFormattedTime() + "</p>";
-
   // Display GPIO pin status
   html += "<p id='gpioStatus'>Cap open: " + gpioStatus + "</p>";
-
   // Display coil toggle message
   if (coilToggleMessage.length() > 0) {
     html += "<p id='coilToggleMessage'>" + coilToggleMessage + "</p>";
@@ -136,48 +138,19 @@ void handleRoot()
   }
 
   // Button to toggle GPIO D1 (coil)
-  html += "<form id='toggleCoilForm' action='/toggleCoil' method='get'>";
-  html += "<input type='button' value='Open' onclick='toggleCoilAndReturn()' />";
+  html += "<form id='toggleCoilForm'>";
+  html += "<button type='button' onclick='toggleCoilAndReturn()'>Open</button>";
   html += "</form>";
 
   // Form to set time
-  html += "<form id='timeForm' action='/updateTime' method='post'>";
-  html += "<label>Open Time:</label>";
-  html += "<br>";
+  html += "<form id='timeForm'>";
+  html += "<label for='setTime'>Open Time:</label>";
   html += "<input type='time' name='setTime' id='setTime' value='" + currentTime + "' />";
-  html += "<br>";
-  html += "<input type='button' value='ОК' onclick='updateTimeAndReturn()' />";
+  html += "<button type='button' onclick='updateTimeAndReturn()'>OK</button>";
   html += "</form>";
-
-  // JavaScript to restore form values and return to initial state
-  html += "<script>";
-  html += "function updateTimeAndReturn() {";
-  html += "  var form = document.getElementById('timeForm');";
-  html += "  var formData = new FormData(form);";
-  html += "  var xhr = new XMLHttpRequest();";
-  html += "  xhr.open('POST', '/updateTime', true);";
-  html += "  xhr.onload = function() {";
-  html += "    if (xhr.status === 200) {";
-  html += "      updateValues();";
-  html += "    }";
-  html += "  };";
-  html += "  xhr.send(formData);";
-  html += "}";
-  html += "function toggleCoilAndReturn() {";
-  html += "  var form = document.getElementById('toggleCoilForm');";
-  html += "  var xhr = new XMLHttpRequest();";
-  html += "  xhr.open('GET', '/toggleCoil', true);";
-  html += "  xhr.onload = function() {";
-  html += "    if (xhr.status === 200) {";
-  html += "      coilToggleMessage = xhr.responseText;";
-  html += "      updateValues();";
-  html += "    }";
-  html += "  };";
-  html += "  xhr.send();";
-  html += "}";
-  html += "</script>";
-
   html += "</body></html>";
+
+  server.send(200, "text/html; charset=utf-8", html);
 
   server.send(200, "text/html; charset=utf-8", html);
 }
