@@ -5,8 +5,6 @@
 #include "WiFiSecrets.h"
 #include "CFTime.h"
 
-#define ASCEND false
-#define DESCEND true
 #define COIL D1
 #define LED D2
 
@@ -15,7 +13,6 @@ const char* password = MY_KEY;
 const char* ntpServer = "ru.pool.ntp.org";
 
 WiFiUDP ntpUDP;
-//NTPClient timeClient(ntpUDP, ntpServer, 10800, 60000);
 NTPClient* timeClient;
 
 ESP8266WebServer server(80);
@@ -105,11 +102,10 @@ void handleRoot()
   html += "  };";
   html += "  xhrTime.open('GET', '/getTime', true);";
   html += "  xhrTime.send();";
-
   html += "  var xhrGPIO = new XMLHttpRequest();";
   html += "  xhrGPIO.onreadystatechange = function() {";
   html += "    if (xhrGPIO.readyState == 4 && xhrGPIO.status == 200) {";
-  html += "      document.getElementById('gpioStatus').innerHTML = 'Открытие замка: ' + xhrGPIO.responseText;";
+  html += "      document.getElementById('gpioStatus').innerHTML = 'Cap open: ' + xhrGPIO.responseText;";
   html += "    }";
   html += "  };";
   html += "  xhrGPIO.open('GET', '/getGPIOStatus', true);";
