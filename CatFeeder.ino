@@ -10,7 +10,8 @@
 
 const char* ssid = MY_SSID; 
 const char* password = MY_KEY;
-const char* ntpServer = "ru.pool.ntp.org";
+//const char* ntpServer = "ru.pool.ntp.org";
+const char* ntpServer = "time.nist.gov";
 
 WiFiUDP ntpUDP;
 NTPClient* timeClient;
@@ -43,11 +44,9 @@ void setup()
   Serial.println("Connected to WiFi");
 
   timeClient = new NTPClient(ntpUDP, ntpServer, 10800, 60000);
-
   // Initialize GPIO pins
   pinMode(COIL, OUTPUT);
   pinMode(LED, OUTPUT);
-
   // Attach routes to the server
   server.on("/", HTTP_GET, handleRoot);
   server.on("/updateTime", HTTP_POST, handleUpdateTime);
@@ -57,11 +56,10 @@ void setup()
 
   // Start server
   server.begin();
-
   // Initialize NTP
   timeClient->begin();
   delay(3000); //Small pause and update, just in case
-  timeClient->update(); 
+  timeClient->update();
   RTC = CFTime(timeClient->getHours(),timeClient->getMinutes(),timeClient->getSeconds());
 }
 
@@ -71,7 +69,7 @@ void loop()
   server.handleClient();
   if(RTC.Period(updatePeriod))
   {
-    timeClient->update();  
+    timeClient->update();
   }  
   if (RTC.IsTime(feedTime))
   {

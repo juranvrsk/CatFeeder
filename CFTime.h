@@ -2,14 +2,13 @@
 class CFTime
 {
     public:
-    struct TimeStamp
+    struct TimeStamp 
     {
         byte Hour;
         byte Minute;
         byte Second;
     };
     
-
     private:
     TimeStamp _time;
     byte _lastSeconds;
@@ -22,25 +21,25 @@ class CFTime
         _lastSeconds = 0;
     }    
 
-    CFTime(byte hour, byte minute, byte second)
+    CFTime(byte Hour, byte Minute, byte Second)
     {
-        _time = {hour, minute, second};
+        _time = {Hour, Minute, Second};
         _lastSeconds = 0;
     }
 
-    CFTime(TimeStamp time)
+    CFTime(TimeStamp Time)
     {
-        _time = time;
+        _time = Time;
     }
 
-    void SetTime(byte hour, byte minute, byte second)
+    void SetTime(byte Hour, byte Minute, byte Second)
     {
-        _time = {hour, minute, second};
+        _time = {Hour, Minute, Second};
     }
 
-    void SetTime(TimeStamp time)
+    void SetTime(TimeStamp Time)
     {
-        _time = time;
+        _time = Time;
     }
 
     int Hour()
@@ -71,19 +70,19 @@ class CFTime
         result += ":";
         result += String(_time.Second);
         return result;
-    }
-
-    bool IsTime(byte hour, byte minute, byte second)//Comparing and logical summing
+    }  
+    
+    bool IsTime(byte Hour, byte Minute, byte Second)//Comparing and logical summing
     {        
-        return (_time.Hour == hour)&&(_time.Minute == minute)&&(_time.Second == second);
+        return (_time.Hour == Hour)&&(_time.Minute == Minute)&&(_time.Second == Second);
     }
 
-    bool IsTime(TimeStamp time)
+    bool IsTime(TimeStamp Time)
     {
-        return (_time.Hour == time.Hour)&&(_time.Minute == time.Minute)&&(_time.Second==time.Second);
+        return (_time.Hour == Time.Hour)&&(_time.Minute == Time.Minute)&&(_time.Second == Time.Second);
     }
 
-    bool Period(TimeStamp time)//For update with time as periodic value, not a stamp
+    bool Period(TimeStamp Time)//For update with time as periodic value, not a stamp
     {   
         //For cases like 0:2:0 we are check time.
         //Ignoring incoming null time by setting true - null mean every time
@@ -93,9 +92,10 @@ class CFTime
         bool sFlag = true;     
         
         //The null leftower of the division are true, other cases are not in period
-        if((_time.Hour    != 0)||(time.Hour    != 0)) hFlag = _time.Hour   % time.Hour   == 0;
-        if((_time.Minute  != 0)||(time.Minute  != 0)) mFlag = _time.Minute % time.Minute == 0;
-        if((_time.Second  != 0)||(time.Second  != 0)) sFlag = _time.Second % time.Second == 0;
+        if((_time.Hour    != 0)&&(Time.Hour    != 0)) {hFlag = (_time.Hour   % Time.Hour)   == 0;}
+        if((_time.Minute  != 0)&&(Time.Minute  != 0)) {mFlag = (_time.Minute % Time.Minute) == 0;}
+        if((_time.Second  != 0)&&(Time.Second  != 0)) {sFlag = (_time.Second % Time.Second) == 0;}
+        
 
         return hFlag&&mFlag&&sFlag;
     }
@@ -121,5 +121,4 @@ class CFTime
             _time.Hour = 0;
         }
     }
-
 };
