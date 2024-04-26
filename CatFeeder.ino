@@ -126,7 +126,7 @@ void handleRoot()
   html +="  h3 {color: #444444; margin-bottom: 50px; font-size: 32px; }";
   html +="  p {font-size: 32px; color: #888; margin-bottom: 10px; }";
   html +="  form {margin-bottom: 20px;}";
-  html +="  input[type='time'], button[type='button'] {width: 100%; padding: 16px; font-size: 32px; margin-bottom: 10px; }";
+  html +="  input[type='time'], button[type='button'] {width: 100%; padding: 16px; font-size: 32px; margin-bottom: 10px; text-align:center;}";
   html +="  label {font-size: 32px; margin-bottom: 10px; }";  
   html +="</style>\n";
   html += "</head>\n<body>";
