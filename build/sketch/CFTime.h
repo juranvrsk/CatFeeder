@@ -2,7 +2,7 @@
 class CFTime
 {
     public:
-    struct TimeStamp //Заменить зарезервированные слова time,hour,minute,second. Поправить страницу на ввод времени по центру. Перейти на нативный RTC
+    struct TimeStamp 
     {
         byte Hour;
         byte Minute;
