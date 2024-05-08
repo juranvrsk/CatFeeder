@@ -184,45 +184,33 @@ void handleGetGPIOStatus()
   server.send(200, "text/plain", gpioStatus);
 }
 
-void CoilAction(int pin)//Soft powering up and down
-{
-  int pwmState = 0;    
-  while(pwmState < 1024) //Soft powering up coil during 1.024 sec
-  {
-    analogWrite(COIL,pwmState);
-    pwmState+=2;
-    delay(2);
-  }
-  delay(500); //Waiting for a half second
-  while(pwmState > 0) //Soft powering down coil during 2.048 sec
-  {
-    analogWrite(COIL,pwmState);
-    pwmState-=2;
-    delay(2);
-  }  
-}
-
 //Soft powering up and down. It haves the three stages: voltage increasing, pause and voltage decreasing
-//The speed is the time step, higher is slower. Period of work depends on it
-/*void CoilAction(int pin, int speed)
+//The speed is the time step in ms, higher is slower. Period of work depends on it
+int CoilAction(int pin, int speed)
 {
+    //Forced setting of time period, overall time should not be greather than one minute, so slowest time period is 19ms
+    if(speed >= 20) speed = 19; 
     int pwmState = 0;
     int cycleCounter = 0;//Three stages 0-1023 is power up,1024-2047 is pause,2048-3071 is power down
-    unsigned long nowMillis = millis();
-    if(nowMillis-lastMillis == speed)
+    while(cycleCounter < 3072)
     {
-      if(cycleCounter < 1024)
-      {        
-        pwmState+=2;
-      }
-      else if(cycleCounter >=2048)
+      unsigned long nowMillis = millis();
+      if(nowMillis-lastMillis == speed)
       {
-        pwmState-=2;
+        if(cycleCounter < 1024)
+        {        
+          pwmState+=2;
+          analogWrite(COIL,pwmState);
+        }
+        else if(cycleCounter >=2048)
+        {
+          pwmState-=2;
+          analogWrite(COIL,pwmState);
+        }
+        cycleCounter++;
       }
-
-      cycleCounter++;
-    }
-}*/
+    }    
+}
 
 int parseHours(String timeString)
 {
