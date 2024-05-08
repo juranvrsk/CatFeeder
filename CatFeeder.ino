@@ -190,6 +190,8 @@ void CoilAction(int pin, int speed)
 {
     //Forced setting of time period, overall time should not be greather than one minute, so slowest time period is 19ms
     if(speed >= 20) speed = 19; 
+    //Forced setting of time period, overall time should not be greather than one minute, so slowest time period is 19ms
+    if(speed >= 20) speed = 19; 
     int pwmState = 0;
     int cycleCounter = 0;//Three stages 0-1023 is power up,1024-2047 is pause,2048-3071 is power down
     while(cycleCounter < 3072)
@@ -208,7 +210,25 @@ void CoilAction(int pin, int speed)
           analogWrite(COIL,pwmState);
         }
         cycleCounter++;
+    while(cycleCounter < 3072)
+    {
+      unsigned long nowMillis = millis();
+      if(nowMillis-lastMillis == speed)
+      {
+        if(cycleCounter < 1024)
+        {        
+          pwmState+=2;
+          analogWrite(COIL,pwmState);
+        }
+        else if(cycleCounter >=2048)
+        {
+          pwmState-=2;
+          analogWrite(COIL,pwmState);
+        }
+        cycleCounter++;
       }
+    }    
+}
     }    
 }
 
