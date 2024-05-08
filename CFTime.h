@@ -72,14 +72,14 @@ class CFTime
         return result;
     }  
     
-    bool IsTime(byte Hour, byte Minute, byte Second)//Comparing and logical summing
+    bool IsTime(byte Hour, byte Minute)//Comparing and logical summing
     {        
-        return (_time.Hour == Hour)&&(_time.Minute == Minute)&&(_time.Second == Second);
+        return (_time.Hour == Hour)&&(_time.Minute == Minute);
     }
 
     bool IsTime(TimeStamp Time)
     {
-        return (_time.Hour == Time.Hour)&&(_time.Minute == Time.Minute)&&(_time.Second == Time.Second);
+        return (_time.Hour == Time.Hour)&&(_time.Minute == Time.Minute);
     }
 
     bool Period(TimeStamp Time)//For update with time as periodic value, not a stamp
