@@ -76,7 +76,7 @@ void loop()
     //Serial.println("Coil Time!");
     if(coilTime == false)
     {
-      CoilAction(COIL); 
+      CoilAction(COIL, 1); 
       coilTime = true;//Block re-opening of the cap
     }
   }
@@ -170,7 +170,7 @@ void handleUpdateTime() //Seting of the opening time from the Web page
 
 void handleToggleCoil() //Handle open of the cap
 {
-  CoilAction(COIL);
+  CoilAction(COIL, 1);
   server.send(200, "text/plain", "Coil toggled");
 }
 
