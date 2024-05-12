@@ -186,19 +186,36 @@ void handleGetGPIOStatus()
 
 //Soft powering up and down. It haves the three stages: voltage increasing, pause and voltage decreasing
 //The speed is the time step in ms, higher is slower. Period of work depends on it
-void CoilAction(int pin, int speed)
+void CoilAction(int pin, int prd)
 {
+    //Serial.print("Coil action enter ");
     //Forced setting of time period, overall time should not be greather than one minute, so slowest time period is 19ms
-    if(speed >= 20) speed = 19; 
-    //Forced setting of time period, overall time should not be greather than one minute, so slowest time period is 19ms
-    if(speed >= 20) speed = 19; 
+    if(prd >= 20) prd = 19; 
+    //Serial.print("Speed is: ");
+    //Serial.print(prd);
     int pwmState = 0;
+    //Serial.print(" PWM: ");
+    //Serial.print(pwmState);    
     int cycleCounter = 0;//Three stages 0-1023 is power up,1024-2047 is pause,2048-3071 is power down
+    //Serial.print(" Cycles: ");
+    //Serial.println(cycleCounter);
+    unsigned long startMillis = millis();
     while(cycleCounter < 3072)
     {
+      //Serial.print("Up cycle enter ");
       unsigned long nowMillis = millis();
-      if(nowMillis-lastMillis == speed)
-      {
+      //Serial.print(" Millis: ");
+      //Serial.println(nowMillis);
+      if(nowMillis-lastMillis  >= prd)
+      { 
+        Serial.println(nowMillis-lastMillis);       
+        //Serial.print("If enter ");
+        //Serial.print(" Cycles: ");
+        //Serial.print(cycleCounter);
+        //Serial.print(" PWM: ");
+        //Serial.print(pwmState);
+        //Serial.print(" Cycles: ");
+        //Serial.println(cycleCounter);
         if(cycleCounter < 1024)
         {        
           pwmState+=2;
@@ -210,26 +227,18 @@ void CoilAction(int pin, int speed)
           analogWrite(COIL,pwmState);
         }
         cycleCounter++;
-    while(cycleCounter < 3072)
-    {
-      unsigned long nowMillis = millis();
-      if(nowMillis-lastMillis == speed)
-      {
-        if(cycleCounter < 1024)
-        {        
-          pwmState+=2;
-          analogWrite(COIL,pwmState);
-        }
-        else if(cycleCounter >=2048)
-        {
-          pwmState-=2;
-          analogWrite(COIL,pwmState);
-        }
-        cycleCounter++;
+        lastMillis = nowMillis;
       }
-    }    
-}
-    }    
+    }
+    Serial.print(" Cycles: ");
+    Serial.print(cycleCounter);
+    unsigned long endMillis = millis();
+    Serial.print(" Period: ");
+    Serial.print(startMillis);
+    Serial.print(" ");
+    Serial.print(endMillis);
+    Serial.print(" ");
+    Serial.println(endMillis - startMillis);
 }
 
 int parseHours(String timeString)
